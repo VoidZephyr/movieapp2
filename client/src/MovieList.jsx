@@ -6,7 +6,8 @@ const MoviesList = () => {
     const [searchTerm, setSearchTerm] = useState(''); // User's search input
     const [filteredMovies, setFilteredMovies] = useState([]); // Filtered movie list
     const [newMovieTitle, setNewMovieTitle] = useState(''); //new movie
-
+    const [showUserAdded, setShowUserAdded] = useState(false); //user added movie
+    const [selectedMovie, setSelectedMovie] = useState(null); // Selected movie details
 
     // Fetch movies from the server
     useEffect(() => {
@@ -60,6 +61,13 @@ const MoviesList = () => {
             .catch(error => console.error('Error deleting movie:', error));
     };
     
+    const displayedMovies = showUserAdded
+    ? filteredMovies.filter(movie => movie.is_user_added)
+    : filteredMovies;
+
+    const handleSelectMovie = (movie) => {
+        setSelectedMovie(movie); // Store the selected movie in state
+    };
     
     return (
         <div>
@@ -91,7 +99,39 @@ const MoviesList = () => {
         </li>
     ))}
 </ul>
+<button onClick={() => setShowUserAdded(!showUserAdded)}>
+    {showUserAdded ? 'Show All Movies' : 'Show User-Added Movies'}
+</button>
+<ul>
+    {displayedMovies.map(movie => (
+        <li key={movie.id}>
+            {movie.title}
+            <button onClick={() => handleDeleteMovie(movie.id)}>Delete</button>
+        </li>
+    ))}
+</ul>
+<ul>
+        {filteredMovies.map(movie => (
+            <li key={movie.id} onClick={() => handleSelectMovie(movie)}>
+                {movie.title}
+            </li>
+        ))}
+    </ul>
 
+    {selectedMovie && (
+        <div className="movie-details">
+            <h2>{selectedMovie.title}</h2>
+            <p>{selectedMovie.description || 'No description available.'}</p>
+            <p>Release Date: {selectedMovie.release_date || 'Unknown'}</p>
+            {selectedMovie.poster_path && (
+                <img
+                    src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`}
+                    alt={selectedMovie.title}
+                />
+            )}
+            <button onClick={() => setSelectedMovie(null)}>Close</button>
+        </div>
+    )}
         </div>
     );
 };

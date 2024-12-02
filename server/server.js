@@ -44,8 +44,8 @@ app.post('/movies', async (req, res) => {
 
     try {
         const result = await pool.query(
-            'INSERT INTO movies (title) VALUES ($1) RETURNING *',
-            [title]
+            'INSERT INTO movies (title, is_user_added) VALUES ($1, $2) RETURNING *',
+            [title, true]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -53,6 +53,7 @@ app.post('/movies', async (req, res) => {
         res.status(500).send('Error adding movie');
     }
 });
+
 
 app.delete('/movies/:id', async (req, res) => {
     const { id } = req.params;
